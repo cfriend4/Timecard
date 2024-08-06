@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Card Submission Form</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; }
+        form { display: flex; flex-direction: column; }
+        label { margin-top: 10px; }
+        input, select { margin-bottom: 10px; padding: 5px; }
+        button { margin-top: 10px; padding: 10px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>Time Card Submission Form</h1>
+    <form id="timeCardForm">
+        <label for="name">Name:</label>
+        <select id="name" required>
+            <option value="">Select your name</option>
+            <option value="John Doe">John Doe</option>
+            <option value="Jane Smith">Jane Smith</option>
+            <option value="Bob Johnson">Bob Johnson</option>
+        </select>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" required>
+
+        <label for="date">Date:</label>
+        <input type="date" id="date" required readonly>
+
+        <label for="clockIn">Clock In Time:</label>
+        <input type="time" id="clockIn" required>
+
+        <label for="clockOut">Clock Out Time:</label>
+        <input type="time" id="clockOut" required>
+
+        <label for="hours">Hours Spent:</label>
+        <input type="number" id="hours" step="0.01" readonly>
+
+        <button type="submit">Submit Time Card</button>
+    </form>
+
+    <script>
+        // Participant data (replace with your actual data)
+        const participants = [
+            { name: 'John Doe', email: 'john.doe@example.com' },
+            { name: 'Jane Smith', email: 'jane.smith@example.com' },
+            { name: 'Bob Johnson', email: 'bob.johnson@example.com' },
+        ];
+
+        // Set current date
+        document.getElementById('date').valueAsDate = new Date();
+
+        // Handle name selection
+        document.getElementById('name').addEventListener('change', function() {
+            const selectedParticipant = participants.find(p => p.name === this.value);
+            if (selectedParticipant) {
+                document.getElementById('email').value = selectedParticipant.email;
+            }
+        });
+
+        // Calculate hours spent
+        function calculateHours() {
+            const clockIn = document.getElementById('clockIn').value;
+            const clockOut = document.getElementById('clockOut').value;
+            if (clockIn && clockOut) {
+                const start = new Date(`2000-01-01T${clockIn}`);
+                const end = new Date(`2000-01-01T${clockOut}`);
+                const diff = (end - start) / (1000 * 60 * 60);
+                document.getElementById('hours').value = diff.toFixed(2);
+            }
+        }
+
+        document.getElementById('clockIn').addEventListener('change', calculateHours);
+        document.getElementById('clockOut').addEventListener('change', calculateHours);
+
+        // Form submission
+        document.getElementById('timeCardForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                date: document.getElementById('date').value,
+                clockIn: document.getElementById('clockIn').value,
+                clockOut: document.getElementById('clockOut').value,
+                hours: document.getElementById('hours').value
+            };
+            console.log('Submitting:', formData);
+            document.getElementById('timeCardForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = {
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value,
+                    date: document.getElementById('date').value,
+                    clockIn: document.getElementById('clockIn').value,
+                    clockOut: document.getElementById('clockOut').value,
+                    hours: document.getElementById('hours').value
+                };
+            
+                fetch('https://script.google.com/macros/s/AKfycbwFAk1TIZQCJk8GZgMBR07u9rjHDXOEGXUiehcRIZBqzDdipF2QvQDjBBrP0b2dnznh4w/exec', {
+                    method: 'POST',
+                    body: JSON.stringify(formData),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.result === 'success') {
+                        alert('Time card submitted successfully!');
+                    } else {
+                        alert('Error submitting time card. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error submitting time card. Please try again.');
+                });
+            });
+            alert('Time card submitted successfully!');
+        });
+    </script>
+</body>
+</html>
